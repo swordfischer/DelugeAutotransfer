@@ -1,0 +1,26 @@
+general:
+
+  logfile:                              'yourlogfile.log'
+
+connections:
+
+  Your_Name:
+    email:                              'youremail@domain.tld'
+    login:                              'username'
+    host:                               'hostname'
+    destination:                        '/home/username/'
+    transfer:
+      - Something_You_Want:
+          match: '^Something\.You\.Want\..*'
+          location: 'SUBDIRECTORY'
+      - Something_Else:
+          match: '^Something\.Else\..*'
+
+  Your_Friend:
+    email:                              'hisemail@domain.tld'
+    login:                              'hisuser'
+    host:                               'hishost'
+    destination:                        '/home/hisuser/'
+    transfer:
+      - He_Wants_This:
+          match: '^He\.Wants\.This\.*'
