@@ -25,7 +25,9 @@ Let's break that config down:
     connections: - This is where there fun begins.  
     Your_Name:` - This will be used in the email, saying hello to you, and to uniquely identify your configuration section. Use underscores instead of spaces. I'd put Mickey\_Fischer and the email will contain "Mickey Fischer", neat!  
     email: - your recipient email.  
+    method: - ftp or rsync.  
     login: - your remote host login.  
+    password: - you remote host password (only used for ftp)  
     host: - your remote hosts name.  
     destination: - This is where the transfers will go, remember the trailing slash!  
     transfer: - This is the greatest section! Here you will list all your lovely regex'es.  
