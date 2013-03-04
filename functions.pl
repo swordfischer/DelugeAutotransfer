@@ -4,7 +4,7 @@ use strict;
 use utf8;
 use Net::SMTP::SSL;
 use File::Rsync;
-use Net::FTP;
+use Net::FTP::Recursive;
 
 sub send_mail {
 my $to          =       $_[0];
@@ -50,20 +50,28 @@ $rsync->exec( {
 }
 sub ftp {
 my $spath       =       $_[0];
-my $sname       =       $_[1];                                                                                                         
+my $sname       =       $_[1];
 my $duser       =       $_[2];
-my $dpass	=	$_[3];                                                                                                      
-my $dhost       =       $_[4];                                                                                                         
-my $ddest       =       $_[5];                                                                                                         
-my $ftp		=	Net::FTP->new("$dhost", Debug => 0)
-			or die "Cannot connect to $dhost: $@";
-$ftp		->	login("$duser", "$dpass")
-			or die "Cannot login ", $ftp->message;
-$ftp		->	cwd("$ddest")
-			or die "Cannot change working directory ", $ftp->message;
-$ftp		->	put("$spath/$sname")
-			or die "Cannot put ", $ftp->message;
-$ftp		->	quit;
+my $dpass		=		$_[3];
+my $dhost       =       $_[4];
+my $ddest       =       $_[5];
+
+chdir("$spath/$sname")
+	or die "Cannot change directory: $!";
+
+my $ftp			=	Net::FTP::Recursive->new("$dhost", Debug => 0)
+					or die "Cannot connect to $dhost: $@";
+$ftp			->	login("$duser", "$dpass")
+					or die "Cannot login ", $ftp->message;
+$ftp			->	cwd("$ddest")
+					or die "Cannot change working directory ", $ftp->message;
+$ftp			->  mkdir("$sname")
+					or die "Cannot create directory ", $ftp->message;
+$ftp            ->  cwd("$sname")
+                    or die "Cannot change working directory ", $ftp->message;
+$ftp			->	rput("$spath/$sname")
+					or die "Cannot put ", $ftp->message;
+$ftp			->	quit;
 1;
 }
 1;   
