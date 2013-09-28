@@ -59,7 +59,7 @@ my $ddest       =       $_[5];
 chdir("$spath/$sname")
 	or die "Cannot change directory: $!";
 
-my $ftp			=	Net::FTP::Recursive->new("$dhost", Debug => 0)
+my $ftp			=	Net::FTP::Recursive->new("$dhost", Debug => 0, Passive => 1)
 					or die "Cannot connect to $dhost: $@";
 $ftp			->	login("$duser", "$dpass")
 					or die "Cannot login ", $ftp->message;
