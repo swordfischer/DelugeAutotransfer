@@ -1,53 +1,68 @@
-DelugeAutotransfer
-==================
+### DelugeAutotransfer
+DelugeAutotransfer is a script for autotransferring completed torrents through Deluge, to your server of choice, matching your favourite regex'es!
 
-DelugeAutotransfer is a script for autotransfering completed torrents through Deluge, to your server of choice, matching your favourite regex'es!
-
-
-Dependencies
-------------
+##### Dependencies
 
 * Perl >=5.12
-* Net::SMTP::SSL
-* YAML::Tiny
-* File::Rsync
-* File::FTP::Recursive
+* YAML::Tiny 
+* Net::SMTP::SSL (*If you want to send mails upon completion*)
+* File::Rsync (*If you want to use rsync as a transfer method*)
+* File::FTP (*If you want to use FTP as a transfer method*)
+* File::FTP::Recursive (*If you want to use FTP as a transfer method*)
 
-How do I get started?
----------------------
-
+##### How do I get started?
+``` bash
     $ git clone git://github.com/swordfischer/DelugeAutotransfer.git
+```
+Now, you need to set up your config file
+``` bash
+    $ cp config.yml.example config.yml
+    $ vim config.yml
+```
+As this is yaml, please watch your start of line spacing and indentation. That is, 2 spaces for each level of configuration.  
+First fill out the **logfile** under **general**
 
-Then, you might want to take a look at `config.yml.example` and edit it to your liking.
+``` yaml
+    general:
+      logfile: '/home/username/DelugeAutotransfer/Torrents.log'
+```
+Now we need to fill out our connections. We can has many as virtually possible here, so keep your friends happy and add them
 
-Let's break that config down:
+``` yaml
+    connections:
+      MyBestFriend:
+        email: 'user@domain.tld'  // This is only needed if you want to send notifications when a transfer completes
+        method: 'rsync'  // Choose between RSYNC or FTP
+        port: '22'
+        login: 'username'  // Username for the connecting user
+        password: ''  // This is not needed if you rsync and have copied a public key without a password
+        host: 'domain.tld'
+        destination: '/home/username/torrents/'
+        transfer:
+          - I_Would_Love_This_File:  // This is the pretty name of the file we're matching. Underscores are replaced with spaces
+              match: '^I\.Would\.Love\.This\.File$'
+              location: 'ILOVETHIS' // Optional: If you want to put all I_Would_Live_This_File's in the subdirectory ILOVETHIS
+```
+You can create multiple connections in the list, one for each friend with his preferences (or each of your servers)
 
-    logfile: - This is obviously where you want DelugeAutotransfer to log to. Mainly used for debugging purposes, but it's is nice to look at!  
-    connections: - This is where there fun begins.  
-    Your_Name: - This will be used in the email, saying hello to you, and to uniquely identify your configuration section. Use underscores instead of spaces. I'd put Mickey\_Fischer and the email will contain "Mickey Fischer", neat!  
-    email: - your recipient email.  
-    method: - ftp or rsync.  
-    login: - your remote host login.  
-    password: - you remote host password (only used for ftp)  
-    host: - your remote hosts name.  
-    destination: - This is where the transfers will go, remember the trailing slash!  
-    transfer: - This is the greatest section! Here you will list all your lovely regex'es.  
-    - Something: - This is the pretty name of your match, it will be used in the email header. Use underscores instead of spaces!  
-    match: 'REGEX' - Replace REGEX with an actual regex. If you can't come up with anything, I've heard that .\* matches a ton of stuff!  
-    location: 'FOLDER' - This is optional. If you'd like to organize something, you should use this. Keep in mind that rsync only create 1 level of nonexisting folders, relative to your destination:.  
+###### Using RSYNC
+You need to copy your public key to the receiving host (`ssh-copy-id <user>@<host>`), without password!  
 
-I filled out the config.yml.example with some lovely examples, so be sure to look at it.  
+###### Using FTP
+Fill out the `login` and `password` field in the **connections** block of the `config.yml`
 
-First of, you need to copy your public key to the receiving host (ssh-copy-id <user>@<host>), without password!  
+###### Setting up Deluge
 Then you need to setup Deluge with the plugin `Execute`.  
 Add an event in Execute  
    
     Event: Torrent Complete
     Command: /path/to/your/script/DelugeAutotransfer.pl
 
-What else?  
-You might want to use absolute paths on `line 8` and `line 12` in *DelugeAutotransfer.pl*, until I correct this
+###### Almost Ready!
+One final thing you might want to do, is edit line #10, #37, #41 and #45 of DelugeAutotransfer.pl to use Absolute Paths instead of Relative Paths.
+
 Enjoy!  
+
 License
 -------
 DelugeAutotransfer is licensed under the [MIT License](http://en.wikipedia.org/wiki/MIT_License)  
