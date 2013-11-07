@@ -32,3 +32,4 @@ sub send_mail {
 		}
 	1;
 }
+1;
