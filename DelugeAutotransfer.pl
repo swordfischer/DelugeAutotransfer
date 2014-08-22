@@ -17,6 +17,7 @@ my $connections		=	$config->[0]->{connections};
 my $torrent_id		=	$ARGV[0];
 my $torrent_name	=	$ARGV[1];
 my $torrent_path	=	$ARGV[2];
+   $torrent_path    =~  s/\/\z//;
 
 ## Start logging
 open (STDERR, ">>", $logfile);
@@ -52,8 +53,8 @@ for my $users (sort keys %{$connections}) {
 				$match_name 	=~	tr/_/ /;
 				$users			=~	tr/_/ /;
 				if ( $torrent_name =~ m/$snatch/i ) {
-					my $subject 	=	"Torrent Transferred ($match_name)";
-					my $content	=	"Hello $users.\n$torrent_name has been successfully transferred to you.";
+					my $subject = "Torrent Transferred ($match_name)";
+					my $content	= "Hello $users.\n$torrent_name has been successfully transferred to you.";
 					if ($location) { $destination = $destination."$location/"; }
 				if ($transmethod =~ m/ftp/) {
 					print LOG "$date - [STARTING] ($transmethod) - $torrent_name to $users\n";
