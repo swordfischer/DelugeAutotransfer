@@ -2,14 +2,15 @@
 use utf8;
 use strict;
 use warnings;
+use Cwd;
 
 use POSIX;
 use YAML::Tiny;
 
-## Declare variables
-my $config 		=	YAML::Tiny->read('config.yml')
+my $pwd				=   cwd();
+my $config 			=	YAML::Tiny->read("$pwd/config.yml")
 					or die YAML::Tiny->errstr;
-our $date		=	strftime "%F %T", localtime $^T;
+our $date			=	strftime "%F %T", localtime $^T;
 
 my $logfile			= 	$config->[0]->{general}->{logfile};
 my $connections		=	$config->[0]->{connections};
@@ -35,15 +36,15 @@ for my $users (sort keys %{$connections}) {
 	my $email		= $userblock->{'email'};
 	my $transmethod = $userblock->{'method'};
 	if ( $email ) {
-		require "email.pl"
+		require "$pwd/mail.pl"
 		or die "$date - [MODULE] Unable to load module EMAIL\n";
 	}
 	if ( $transmethod =~ m/ftp/) {
-		require "ftp.pl"
+		require "$pwd/ftp.pl"
 		or die "$date - [MODULE] Unable to load module FTP\n";
 	}
 	if ( $transmethod =~ m/rsync/) {
-		require "rsync.pl"
+		require "$pwd/rsync.pl"
 		or die "$date - [MODULE] Unable to load module RSYNC\n";
 	}
 	for (sort @{$transfer}) {
