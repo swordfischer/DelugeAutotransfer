@@ -14,7 +14,7 @@ sub rsync {
 	my $dhost	=	$_[3];
 	my $dport	=	$_[4];
 	my $ddest	=	$_[5];
-	my $rsync	=	File::Rsync->new( {'recursive' => '1' } );
+	my $rsync	=	File::Rsync->new( {'recursive' => '1', 'debug' => '0' } );
 	$rsync->exec( {
 			src		=>		"$spath/$sname",
 			dest	=>		"$duser\@$dhost:$ddest",

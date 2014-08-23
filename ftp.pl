@@ -24,31 +24,30 @@ if ( -f "$spath/$sname" ) {
 elsif ( -d "$spath/$sname" ) {
 	chdir ("$spath/$sname")
 		or die "$date - [MODULE / FTP] Cannot change directory: $!";
-	our	$ftp	=	Net::FTP::Recursive->new("$dhost", Debug => 0, Passive => 1)
+	our	$ftp	=	Net::FTP::Recursive->new("$dhost", Debug => 0, Passive => 3)
 					or die "$date - [MODULE / FTP] Cannot connect to $dhost: $@";
 }
 	our $ftp;
 		$ftp	->	login("$duser", "$dpass")
 					or die "$date - [MODULE / FTP] Cannot login ", $ftp->message;
-		if ( !$ftp->cwd("$ddest") ) {
+		if ( !$ftp->cwd("$ddest/$sname") ) {
 			if ( -d "$spath/$sname") {
-			$ftp	->	mkdir("$sname")
+			$ftp	->	mkdir("$ddest/$sname", 1)
 						or die "$date - [MODULE / FTP] Cannot create directory ", $ftp->message;
 			}
 		}
-		$ftp	->	cwd("$ddest")
+		$ftp	->	cwd("$ddest/$sname")
 					or die "$date - [MODULE / FTP] Cannot change working directory ", $ftp->message;
-		$ftp	->	cwd("$sname")
-					or die "$date - [MODULE / FTP] Cannot change working directory ", $ftp->message;
+
 		if ( -d "$spath/$sname") {
 			$ftp	->	rput("$spath/$sname")
-						or die "$date - [MODULE / FTP] Cannot put ", $ftp->message;
+						or die "$date - [MODULE / FTP] Cannot rput ", $ftp->message;
 		}
 		elsif ( -f "$spath/$sname") {
-			$ftp	->	put("$spath/$sname")
+			$ftp	->	append("$spath/$sname")
 						or die "$date - [MODULE / FTP] Cannot put ", $ftp->message;
 		}
 		$ftp	->	quit;
 	1;
 }
-1;
+1;		

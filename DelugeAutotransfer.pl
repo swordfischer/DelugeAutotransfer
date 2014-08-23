@@ -12,7 +12,27 @@ my $config 			=	YAML::Tiny->read("$pwd/config.yml")
 					or die YAML::Tiny->errstr;
 our $date			=	strftime "%F %T", localtime $^T;
 
-my $logfile			= 	$config->[0]->{general}->{logfile};
+my $general			=   $config->[0]->{general};
+
+my $logpath;
+my $logfile;
+if (defined $general->{logfile}) {
+	$logfile = $general->{logfile};
+} else {
+	$logfile = 'output.log';
+}
+if (defined $general->{logpath}) {
+	$logpath = $general->{logpath};
+} else {
+	$logpath = $pwd;
+}
+
+my $email		    =   $general->{email};
+my $email_from		=	$email->{from};
+my $email_name		=	$email->{name};
+my $email_pass		=   $email->{pass};
+my $email_smtp	 	= 	$email->{smtp};
+
 my $connections		=	$config->[0]->{connections};
 
 my $torrent_id		=	$ARGV[0];
@@ -33,7 +53,7 @@ for my $users (sort keys %{$connections}) {
 	my $host		= $userblock->{'host'};
 	my $port		= $userblock->{'port'};
 	my $transfer	= $userblock->{'transfer'};
-	my $email		= $userblock->{'email'};
+	my $user_email	= $userblock->{'email'};
 	my $transmethod = $userblock->{'method'};
 	if ( $email ) {
 		require "$pwd/mail.pl"
@@ -54,9 +74,9 @@ for my $users (sort keys %{$connections}) {
 				$match_name 	=~	tr/_/ /;
 				$users			=~	tr/_/ /;
 				if ( $torrent_name =~ m/$snatch/i ) {
-					my $subject = "Torrent Transferred ($match_name)";
-					my $content	= "Hello $users.\n$torrent_name has been successfully transferred to you.";
-					if ($location) { $destination = $destination."$location/"; }
+					my $email_subject = "Torrent Transferred ($match_name)";
+					my $email_content = "Hello $users.\n$torrent_name has been successfully transferred to you.";
+					if ($location) { $destination = $destination."/$location/"; }
 				if ($transmethod =~ m/ftp/) {
 					print LOG "$date - [STARTING] ($transmethod) - $torrent_name to $users\n";
 					&ftp($torrent_path, $torrent_name, $login, $password, $host, $destination)
@@ -68,7 +88,7 @@ for my $users (sort keys %{$connections}) {
 						or die "$date - [FAILED] ($transmethod) - $torrent_name to $users\n";
 					}
 				print LOG "$date - [TRANSFERRED] ($transmethod) - $torrent_name to $users\n";
-				&send_mail($email, $subject, $content ) if ($email);
+				&send_mail($email_from, $email_name, $email_pass, $email_smtp, $user_email, $email_subject, $email_content ) if ($email);
 				
 			} 
 		}
